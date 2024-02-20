@@ -1,0 +1,69 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Yii Application Initialization Tool
+ *
+ * In order to run in non-interactive mode:
+ *
+ * init --env=Development --overwrite=n
+ */
+
+
+echo "Yii Application Initialization Tool v2.0\n\n";
+
+// Function to read environment variables from .env.example
+function readEnvExample($filePath)
+{
+    $envData = [];
+
+    if (file_exists($filePath)) {
+        $lines = file($filePath);
+
+        foreach ($lines as $line) {
+
+            // Split key and value based on '='
+            list($key, $value) = explode('=', $line, 2) + [NULL, NULL];
+
+            // Trim any leading/trailing whitespaces
+            $key = trim($key ?? '');
+            $value = trim($value ?? '');
+
+            // Add key-value pair to the array
+            $envData[$key] = $value;
+        }
+    }
+
+    return $envData;
+}
+
+// Function to write environment variables to .env file
+function updateEnvFile($filePath, $newEnvData)
+{
+    $existingEnvData = readEnvExample($filePath);
+
+    // Merge new variables into existing ones without overriding
+    $envData = array_merge($newEnvData , $existingEnvData );
+
+    $content = '';
+
+    foreach ($envData as $key => $value) {
+        if($value){
+            $content .= "$key=$value\n";
+        }else{
+            $content .= "$key\n";
+        }
+    }
+
+    file_put_contents($filePath, $content);
+    echo ".env file updated successfully.\n";
+}
+
+// Specify paths for .env.example and .env files
+$envExamplePath = '.env.example';
+$envFilePath = '.env';
+
+// Read environment variables from .env.example
+$envData = readEnvExample($envExamplePath);
+
+// Write environment variables to .env file
+updateEnvFile($envFilePath, $envData);
